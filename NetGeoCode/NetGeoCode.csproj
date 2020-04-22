@@ -7,11 +7,21 @@
     <Copyright>2020</Copyright>
     <RepositoryUrl>https://github.com/kouroshparsa/NetGeoCode</RepositoryUrl>
     <PackageTags>GeoCode Google API</PackageTags>
+    <PackageProjectUrl>https://github.com/kouroshparsa/NetGeoCode</PackageProjectUrl>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

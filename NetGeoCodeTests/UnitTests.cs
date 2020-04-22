@@ -5,7 +5,7 @@ using NetGeoCode;
 namespace NetGeoCodeTests
 {
     [TestClass]
-    public class UnitTest1
+    public class UnitTests
     {
         [TestMethod]
         public void GetLocationTest()
@@ -16,9 +16,16 @@ namespace NetGeoCodeTests
             Assert.AreEqual("United States", loc.country);
             Assert.AreEqual("CA", loc.state_code);
             Assert.AreEqual("San Jose", loc.city);
+            Assert.AreEqual(-121.8505679, loc.lng);
+            Assert.AreEqual(37.3558627, loc.lat);
         }
-        public void TestMethod1()
+
+        [TestMethod]
+        [ExpectedException(typeof(RequestDeniedException))]
+        public void BadKeyTest()
         {
+            GeoCode geo = new GeoCode("BAD KEY");
+            var loc = geo.GetLocation("95116");
         }
 
 

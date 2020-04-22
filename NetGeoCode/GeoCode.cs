@@ -4,6 +4,7 @@ using System.Web;
 using System.Collections.Generic;
 using System.Net;
 using System.IO;
+using System.ComponentModel;
 
 namespace NetGeoCode
 {
@@ -13,11 +14,17 @@ namespace NetGeoCode
         public string short_name;
         public string[] types;
     }
+
+    internal class Geometry
+    {
+        dynamic bounds;
+        public Dictionary<string, double> location;
+    }
     internal class ApiResult
     {
         public string formatted_address;
         public string place_id;
-        dynamic geometry;
+        public Geometry geometry;
         public dynamic types;
         public List<Address> address_components;
     }
@@ -25,6 +32,7 @@ namespace NetGeoCode
     {
         public string status;
         public List<ApiResult> results;
+        public string error_message;
     }
 
     public class Location
@@ -35,8 +43,10 @@ namespace NetGeoCode
         public string city;
         public string country_code;
         public string state_code;
+        public double lng;
+        public double lat;
         public Location() { }
-        public Location(string country, string state, string county, string city, string country_code, string state_code)
+        public Location(string country, string state, string county, string city, string country_code, string state_code, double lng, double lat)
         {
             this.country = country;
             this.state = state;
@@ -44,6 +54,8 @@ namespace NetGeoCode
             this.city = city;
             this.country_code = country_code;
             this.state_code = state_code;
+            this.lng = lng;
+            this.lat = lat;
          }
 
         public override string ToString()
@@ -71,31 +83,104 @@ namespace NetGeoCode
             string jsonText = reader.ReadToEnd();
             response.Close();
             ApiResponse res = JsonConvert.DeserializeObject<ApiResponse>(jsonText);
-            Location loc = new Location();
-            foreach (var comp in res.results[0].address_components)
+            if(res.status == "OVER_DAILY_LIMIT")
             {
-                if (comp.types[0] == "country")
-                {
-                    loc.country = comp.long_name;
-                    loc.country_code = comp.short_name;
-                }
-                else if (comp.types[0] == "locality")
-                {
-                    loc.city = comp.long_name;
-                }
-                else if (comp.types[0] == "administrative_area_level_1")
-                {
-                    loc.state = comp.long_name; // or province
-                    loc.state_code = comp.short_name;
-                }
-                else if (comp.types[0] == "administrative_area_level_2")
-                {
-                    loc.county = comp.long_name;
-                }
+                throw new OverDailyLimitException();
+            }else if(res.status == "OVER_QUERY_LIMIT")
+            {
+                throw new OverQueryLimitException();
+            }
+            else if (res.status == "REQUEST_DENIED")
+            {
+                throw new RequestDeniedException(res.error_message);
+            }
+            else if (res.status == "INVALID_REQUEST")
+            {
+                throw new InvalidRequestException();
+            }
+            else if (res.status != "OK")
+            {
+                throw new Exception("Unknown Error");
             }
 
+            Location loc = new Location();
+            if (res.results.Count > 0)
+            {
+                loc.lng = res.results[0].geometry.location["lng"];
+                loc.lat = res.results[0].geometry.location["lat"];
+                foreach (var comp in res.results[0].address_components)
+                {
+                    if (comp.types[0] == "country")
+                    {
+                        loc.country = comp.long_name;
+                        loc.country_code = comp.short_name;
+                    }
+                    else if (comp.types[0] == "locality")
+                    {
+                        loc.city = comp.long_name;
+                    }
+                    else if (comp.types[0] == "administrative_area_level_1")
+                    {
+                        loc.state = comp.long_name; // or province
+                        loc.state_code = comp.short_name;
+                    }
+                    else if (comp.types[0] == "administrative_area_level_2")
+                    {
+                        loc.county = comp.long_name;
+                    }
+                }
+            }
+            else
+            {
+                throw new NoResultException();
+            }
             return loc;
         }
+    }
+
+    [Serializable]
+    public class OverDailyLimitException: Exception
+    {
+        public OverDailyLimitException(){}
+
+        public OverDailyLimitException(string msg): base(msg)
+        {
+        }
+    }
+
+    [Serializable]
+    public class OverQueryLimitException : Exception
+    {
+        public OverQueryLimitException() { }
+
+        public OverQueryLimitException(string msg) : base(msg)
+        {
+        }
+    }
+
+    [Serializable]
+    public class RequestDeniedException : Exception
+    {
+        public RequestDeniedException() { }
+
+        public RequestDeniedException(string msg) : base(msg)
+        {
+        }
+    }
+
+    [Serializable]
+    public class InvalidRequestException : Exception
+    {
+        public InvalidRequestException() { }
+
+        public InvalidRequestException(string msg) : base(msg)
+        {
+        }
+    }
+
+    [Serializable]
+    public class NoResultException : Exception
+    {
     }
 }
 

@@ -1,8 +1,4 @@
-# NetGeoCode
-.Net package to use Google geocode api
-
-Example:
-```
+﻿using System;
 using NetGeoCode;
 
 namespace ConsoleApp1
@@ -14,17 +10,7 @@ namespace ConsoleApp1
             GeoCode geo = new GeoCode("YOUR KEY");
             var loc = geo.GetLocation("YOU ZIPCODE");
             Console.WriteLine(loc.ToString());
+            Console.ReadKey();
         }
     }
 }
-```
-
-Public methods:
-GetLocation(string postal_code)
-returns a Location object with properties:
--  country;
--  state;
--  county;
--  city;
--  country_code;
--  state_code;

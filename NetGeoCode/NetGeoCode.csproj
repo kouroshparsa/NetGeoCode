@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Kourosh Parsa</Authors>
+    <Description>A .Net package to retrieve geocode data from Google api</Description>
+    <Copyright>2020</Copyright>
+    <RepositoryUrl>https://github.com/kouroshparsa/NetGeoCode</RepositoryUrl>
+    <PackageTags>GeoCode Google API</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+</Project>

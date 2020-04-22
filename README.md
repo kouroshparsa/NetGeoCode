@@ -22,9 +22,9 @@ namespace ConsoleApp1
 Public methods:
 GetLocation(string postal_code)
 returns a Location object with properties:
--  country;
--  state;
--  county;
--  city;
--  country_code;
--  state_code;
+-  country
+-  state
+-  county
+-  city
+-  country_code
+-  state_code

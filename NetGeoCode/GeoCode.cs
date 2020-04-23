@@ -1,10 +1,8 @@
 ﻿using System;
 using Newtonsoft.Json;
-using System.Web;
 using System.Collections.Generic;
 using System.Net;
 using System.IO;
-using System.ComponentModel;
 
 namespace NetGeoCode
 {
@@ -45,6 +43,7 @@ namespace NetGeoCode
         public string state_code;
         public double lng;
         public double lat;
+        public string status;
         public Location() { }
         public Location(string country, string state, string county, string city, string country_code, string state_code, double lng, double lat)
         {
@@ -56,13 +55,14 @@ namespace NetGeoCode
             this.state_code = state_code;
             this.lng = lng;
             this.lat = lat;
-         }
+            this.status = "";
+        }
 
         public override string ToString()
         {
             return string.Format("country={0}, state={1}, city={2}", this.country, this.state, this.city);
         }
-}
+    }
     public class GeoCode
     {
         private string googleApiKey;
@@ -83,10 +83,11 @@ namespace NetGeoCode
             string jsonText = reader.ReadToEnd();
             response.Close();
             ApiResponse res = JsonConvert.DeserializeObject<ApiResponse>(jsonText);
-            if(res.status == "OVER_DAILY_LIMIT")
+            if (res.status == "OVER_DAILY_LIMIT")
             {
                 throw new OverDailyLimitException();
-            }else if(res.status == "OVER_QUERY_LIMIT")
+            }
+            else if (res.status == "OVER_QUERY_LIMIT")
             {
                 throw new OverQueryLimitException();
             }
@@ -96,9 +97,9 @@ namespace NetGeoCode
             }
             else if (res.status == "INVALID_REQUEST")
             {
-                throw new InvalidRequestException();
+                throw new InvalidRequestException(res.error_message);
             }
-            else if (res.status != "OK")
+            else if (res.status != "OK" && res.status != "ZERO_RESULTS")
             {
                 throw new Exception("Unknown Error");
             }
@@ -132,18 +133,19 @@ namespace NetGeoCode
             }
             else
             {
-                throw new NoResultException();
+                throw new NoResultException("No results for postal code " + postal_code);
             }
+            loc.status = res.status;
             return loc;
         }
     }
 
     [Serializable]
-    public class OverDailyLimitException: Exception
+    public class OverDailyLimitException : Exception
     {
-        public OverDailyLimitException(){}
+        public OverDailyLimitException() { }
 
-        public OverDailyLimitException(string msg): base(msg)
+        public OverDailyLimitException(string msg) : base(msg)
         {
         }
     }
@@ -181,6 +183,8 @@ namespace NetGeoCode
     [Serializable]
     public class NoResultException : Exception
     {
+        public NoResultException(string msg) : base(msg)
+        {
+        }
     }
 }
-

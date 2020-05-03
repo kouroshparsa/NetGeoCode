@@ -16,7 +16,7 @@ namespace ConsoleApp1
             var loc = geo.GetLocationFromAddress(address);
             Console.WriteLine(loc.lat + "," + loc.lng + " zip code=" + loc.zip);
 			
-			var loc = geo.GetLocationFromAddress(loc.zip);
+            var loc = geo.GetLocationFromAddress(loc.zip);
             Console.WriteLine(loc.lat + "," + loc.lng);
         }
     }

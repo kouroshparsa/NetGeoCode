@@ -44,6 +44,7 @@ namespace NetGeoCode
         public double lng;
         public double lat;
         public string status;
+        public string zip;
         public Location() { }
         public Location(string country, string state, string county, string city, string country_code, string state_code, double lng, double lat)
         {
@@ -70,10 +71,23 @@ namespace NetGeoCode
         {
             this.googleApiKey = googleApiKey;
         }
-        public Location GetLocation(string postal_code)
+
+        public Location GetLocationFromAddress(string address)
+        {
+            /**
+             * address is in the format: street_number,street_name,city,state,country
+             */
+            string url = string.Format(@"https://maps.googleapis.com/maps/api/geocode/json?address={0}&key={1}", address, googleApiKey);
+            return GetLocation(url);
+        }
+
+        public Location GetLocationFromZipCode(string postal_code)
         {
             string url = string.Format(@"https://maps.googleapis.com/maps/api/geocode/json?components=postal_code:{0}&key={1}", postal_code, googleApiKey);
-
+            return GetLocation(url);
+        }
+        private Location GetLocation(string url)
+        {
             WebRequest request = WebRequest.Create(url);
             WebResponse response = request.GetResponse();
             Stream data = response.GetResponseStream();
@@ -129,11 +143,15 @@ namespace NetGeoCode
                     {
                         loc.county = comp.long_name;
                     }
+                    else if(comp.types[0] == "postal_code")
+                    {
+                        loc.zip = comp.short_name;
+                    }
                 }
             }
             else
             {
-                throw new NoResultException("No results for postal code " + postal_code);
+                throw new NoResultException("No results.");
             }
             loc.status = res.status;
             return loc;

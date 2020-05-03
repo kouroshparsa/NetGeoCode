@@ -8,7 +8,7 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             GeoCode geo = new GeoCode("YOUR KEY");
-            var loc = geo.GetLocation("YOU ZIPCODE");
+            var loc = geo.GetLocationFromZipCode("YOUR ZIPCODE");
             Console.WriteLine(loc.ToString());
             Console.ReadKey();
         }
